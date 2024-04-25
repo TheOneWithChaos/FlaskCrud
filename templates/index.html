@@ -7,7 +7,7 @@
     <title>TechSky</title>
 
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
     
@@ -90,6 +90,7 @@
             <th scope="col">Name</th>
             <th scope="col">Email</th>
             <th scope="col">Phone</th>
+            <th scope="col">Subjects</th>
             <th scope="col">Action</th>
         </tr>
     </thead>
@@ -97,64 +98,14 @@
         {% for row in students %}
         <tr>
         <td>{{row.0}}</td>
-        <td>{{row.1}}</td>
+        <td><a href="{{ url_for('student_page', student_id=row.0) }}">{{row.1}}</a></td>
         <td>{{row.2}}</td>
         <td>{{row.3}}</td>
+        <td>{{row.subjects}}</td>
         <td>
-            <a href="/update/{{row.0}}" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modaledit{{row.0}}">Edit</a>
-            <a href="/delete/{{ row.0 }}" onclick="return confirm('Are Sure Want To Deleted ?')" class="btn btn-danger btn-sm">Delete</a>
-
+            <a href="/delete/{{ row.id }}" onclick="return confirm('Are You Sure Want To Deleted ?')" class="btn btn-danger btn-sm">Delete</a>
         </td>
     </tr>
-
-
-        <!-- Enter New Student Modal -->
-        <div id="modaledit{{row.0}}" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-                <div class="modal-content">
-       
-                    <div class="modal-header">
-                        <h5 class="modal-title text-primary" style="align-content: center;">Update Student Details</h5>    
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">&times;</span>
-                        </button>
-                      </div>
-                      
-    
-                    <div class="modal-body">
-                        
-                        <form action="{{ url_for('update')}}" method="POST">
-                            <input type="hidden" name="id" value="{{row.0}}">
-                            <div class="form-group">
-                              <label>Full Name</label>
-                              <input value="{{row.1}}" type="text" name="name" class="form-control" id="exampleFormControlInput1" placeholder="Enter Full Name">
-                            </div>
-    
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input value="{{row.2}}" type="text" name="email" class="form-control" id="exampleFormControlInput1" placeholder="Enter Email">
-                            </div>
-    
-                            <div class="form-group">
-                                <label>Phone Number</label>
-                                <input value="{{row.3}}" name="phone" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Enter Phone Number">
-                              </div>
-    
-                              <button type="submit" class="btn btn-success mb-2">Update</button>
-                         
-                          </form>
-    
-    
-                    </div>
-                </div>
-            </div>
-    
-        </div>
-    
-    
-        <!-- End of Edit Student Modal -->
-
-
 
 
         {% endfor %}
@@ -163,8 +114,6 @@
 </table>
             </div>
             <!-- Content ends here-->
-
-
             <div class="col-sm-2"></div>
 
         </div>

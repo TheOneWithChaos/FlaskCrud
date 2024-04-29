@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 engine = create_engine('mysql+pymysql://root:1234@localhost/crud')
 connection = engine.connect()
 app = Flask(__name__) 
-app.secret_key = "MY SECRET KEY" # Set a secret key for the app - required for session management - it helps to keep the client-side sessions secure
+app.secret_key = "MY SECRET KEY" 
 
 @app.route("/") 
 def index():
@@ -29,26 +29,26 @@ def insert():
         return redirect(url_for('index'))
 
     
-@app.route('/delete/<string:id_data>', methods = ['GET']) # The <string:id_data> will be used to identify the record to be deleted
+@app.route('/delete/<string:id_data>', methods = ['GET'])
 def delete(id_data):
     connection.execute(text(f"DELETE FROM students WHERE id = {id_data}"))
     connection.commit()
-    flash("Record Has Been Deleted Successfully") # flash is used to display a message to the user
+    flash("Record Has Been Deleted Successfully")
     return redirect(url_for('index'))
 
-@app.route('/update', methods= ['POST', 'GET'])
-def update():
+@app.route('/update/<string:id>', methods=['GET', 'POST'])
+def update(id):
     if request.method == 'POST':
         id_data = request.form['id']
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone']
-        
         connection.execute(text(f"UPDATE students SET name = '{name}', email = '{email}', phone = '{phone}' WHERE id = {id_data}"))
         connection.commit()
         flash("Data Updated Successfully")
-        return redirect(url_for('index'))
-    pass
+        return redirect(url_for('student_page', student_id=id_data))
+    # student = connection.execute(text(f"SELECT * FROM students WHERE id = {id}")).fetchone()
+    # return render_template('index.html', student=student)
 
 @app.route("/subjects") 
 def subjects():
@@ -85,15 +85,31 @@ def update_subject(id):
 @app.route("/student/<string:student_id>")
 def student_page(student_id):
     student = connection.execute(text(f"SELECT * FROM students WHERE id = {student_id}")).fetchone()
-    subjects = connection.execute(text(f"SELECT s.name FROM subjects s JOIN student_subjects ss ON s.id = ss.subject_id WHERE ss.student_id = {student_id}")).fetchall()
-    return render_template('student.html', student=student, subjects=subjects)
+    subjects = connection.execute(text(f"SELECT s.name, s.id FROM subjects s JOIN student_subjects ss ON s.id = ss.subject_id WHERE ss.student_id = {student_id}")).fetchall()
+    all_subjects = connection.execute(text("SELECT * FROM subjects")).fetchall()
+    student_subjects = connection.execute(text(f"""
+        SELECT s.id, s.name
+        FROM subjects s
+        LEFT JOIN student_subjects ss ON s.id = ss.subject_id
+        WHERE ss.student_id = :student_id
+    """), {"student_id": student_id}).fetchall() 
+    available_subjects = [subject for subject in all_subjects if subject not in student_subjects]
+    return render_template('student.html', student=student, subjects=subjects, available_subjects=available_subjects)
 
 @app.route('/add_subject_to_student/<string:student_id>', methods=['POST'])
 def add_subject_to_student(student_id):
+    all_subjects = connection.execute(text("SELECT * FROM subjects")).fetchall()
+    student_subjects = connection.execute(text(f"""
+        SELECT s.id, s.name
+        FROM subjects s
+        LEFT JOIN student_subjects ss ON s.id = ss.subject_id
+        WHERE ss.student_id = :student_id
+    """), {"student_id": student_id}).fetchall() 
+    available_subjects = [subject for subject in all_subjects if subject not in student_subjects]
     subject_id = request.form['subject_id']
-    connection.execute(text(f"INSERT INTO student_subjects (student_id, subject_id) VALUES ({student_id}, {subject_id})"))
+    connection.execute(text(f"INSERT INTO student_subjects (student_id, subject_id) VALUES ({student_id}, {subject_id})"))   
     flash("Subject added successfully")
-    return redirect(url_for('student_page', student_id=student_id))
+    return redirect(url_for('student_page', student_id=student_id, available_subjects=available_subjects))
 
 @app.route('/remove_subject_from_student/<string:student_id>', methods=['POST'])
 def remove_subject_from_student(student_id):

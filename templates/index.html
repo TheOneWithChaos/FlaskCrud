@@ -5,49 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TechSky</title>
-
-
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
 <body>
-    
 <div class="container-fluid">
 <h1 class="text-center alert alert-danger">Python Flask CRUD Application</h1>
         <div class="row">
             <div class="col-sm-2"></div>
-
-            <!-- content goes here -->
             <div class="col-sm-8">
 <h2 >Student List <button class="btn btn-primary float-right" data-toggle="modal" data-target="#myModal">Add Student</button></h2>
-
-{%with messages = get_flashed_messages()%}
-{%if messages%}
-{% for message in messages %}
-<div class="alert alert-success alert-dismissable" role="alert">
-    <button type="button" class="close" data-dismiss="alert" aria-label="close">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    {{message}}
-</div>
-{%endfor%}
-{%endif%}
-{%endwith%}
-
-
-
+    {%with messages = get_flashed_messages()%}
+    {%if messages%}
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {{message}}
+    </div>
+    {%endfor%}
+    {%endif%}
+    {%endwith%}
     <!-- Enter New Student Modal -->
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
-   
                 <div class="modal-header">
                     <h5 class="modal-title text-primary" style="align-content: center;">Please Add New Student</h5>    
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
-                  
-
                 <div class="modal-body">
                     
                     <form action="{{ url_for('insert')}}" method="POST">
@@ -65,55 +53,42 @@
                             <label>Phone Number</label>
                             <input name="phone" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Enter Phone Number">
                           </div>
-
-                          <button type="submit" class="btn btn-primary mb-2">Save</button>
-                     
+                          <button type="submit" class="btn btn-primary mb-2">Save</button>  
                       </form>
-
-
                 </div>
             </div>
         </div>
-
     </div>
 
 
-    <!-- End of Enter New Student Modal -->
 
-
-
-
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">S/N</th>
-            <th scope="col">Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Phone</th>
-            <th scope="col">Subjects</th>
-            <th scope="col">Action</th>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">S/N</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone</th>
+                <th scope="col">Subjects</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in students %}
+            <tr>
+            <td>{{row.0}}</td>
+            <td><a href="{{ url_for('student_page', student_id=row.0) }}">{{row.1}}</a></td>
+            <td>{{row.2}}</td>
+            <td>{{row.3}}</td>
+            <td>{{row.subjects}}</td>
+            <td>
+                <a href="/delete/{{ row.id }}" onclick="return confirm('Are You Sure Want To Deleted ?')" class="btn btn-danger btn-sm">Delete</a>
+            </td>
         </tr>
-    </thead>
-    <tbody>
-        {% for row in students %}
-        <tr>
-        <td>{{row.0}}</td>
-        <td><a href="{{ url_for('student_page', student_id=row.0) }}">{{row.1}}</a></td>
-        <td>{{row.2}}</td>
-        <td>{{row.3}}</td>
-        <td>{{row.subjects}}</td>
-        <td>
-            <a href="/delete/{{ row.id }}" onclick="return confirm('Are You Sure Want To Deleted ?')" class="btn btn-danger btn-sm">Delete</a>
-        </td>
-    </tr>
-
-
         {% endfor %}
-    </tbody>
-
-</table>
+        </tbody>
+    </table>
             </div>
-            <!-- Content ends here-->
             <div class="col-sm-2"></div>
 
         </div>
